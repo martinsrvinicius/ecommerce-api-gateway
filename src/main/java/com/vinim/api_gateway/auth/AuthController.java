@@ -28,4 +28,18 @@ public class AuthController {
         String token = jwtTokenProvider.generateToken(request.email(), "user");
         return new LoginResponse(token);
     }
+
+    @GetMapping("/validate")
+    @ResponseStatus(HttpStatus.OK)
+    public ValidateTokenResponse validateToken(@RequestHeader(name = "Authorization", required = false) String authorizationHeader) {
+        
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("Missing or invalid Authorization header");
+        }
+
+        String token = authorizationHeader.substring("Bearer ".length());
+        String userId = jwtTokenProvider.getUserIdFromToken(token);
+
+        return new ValidateTokenResponse(userId, true);   
+    }
 }
