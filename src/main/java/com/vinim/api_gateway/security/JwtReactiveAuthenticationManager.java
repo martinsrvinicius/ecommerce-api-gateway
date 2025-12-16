@@ -22,10 +22,14 @@ public class JwtReactiveAuthenticationManager implements ReactiveAuthenticationM
 
         try {
             String userId = jwtTokenProvider.getUserIdFromToken(token);
+            String role = (String) authentication.getCredentials();
+            
+            // Converte role única (ex: "USER" ou "ADMIN") para GrantedAuthority
+            String authority = role.startsWith("Role_") ? role : "ROLE_" + role;
 
-            List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+            List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(authority));
 
-            Authentication auth = new UsernamePasswordAuthenticationToken(userId, null, authorities);
+            Authentication auth = new UsernamePasswordAuthenticationToken(userId, token, authorities);
             return Mono.just(auth);
         } catch (Exception e) {
             return Mono.empty();

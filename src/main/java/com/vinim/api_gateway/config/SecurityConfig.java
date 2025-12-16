@@ -1,9 +1,10 @@
-// src/main/java/com/vinim/api_gateway/config/SecurityConfig.java
 package com.vinim.api_gateway.config;
 
 import com.vinim.api_gateway.JwtTokenProvider;
 import com.vinim.api_gateway.security.JwtReactiveAuthenticationManager;
 import com.vinim.api_gateway.security.JwtServerAuthenticationConverter;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -17,6 +18,14 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
+    @Bean
+    public JwtTokenProvider jwtTokenProvider() {
+        return new JwtTokenProvider(jwtSecret);
+    }
 
     @Bean
     public ReactiveAuthenticationManager jwtAuthenticationManager(JwtTokenProvider jwtTokenProvider) {
@@ -42,6 +51,7 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/api/auth/**").permitAll()
+                        .pathMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyExchange().authenticated()
                 )
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
