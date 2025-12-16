@@ -42,7 +42,8 @@ public class ProtectedControllerTest {
                      .exchange()
                      .expectStatus().isOk()
                      .expectBody()
-                     .jsonPath("$.status").isEqualTo("ok");
+                     .jsonPath("$.status").isEqualTo("ok")
+                     .jsonPath("$.userId").isEqualTo(userId);
 
     }
 }
